@@ -24,3 +24,7 @@
     - cd backend && sudo docker build -t my_app .
 - 运行
     - sudo docker run -p 8080:8080 --name my_app --rm my_app
+
+### 开发日志
+
+2021-10-30：火山引擎创建集群（单实例），创建镜像仓库，上传镜像（nginx），部署资源，创建流水线（绑定github仓库），运行流水线推送至nginx。
