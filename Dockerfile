@@ -28,4 +28,4 @@ EXPOSE 8080
 # 镜像默认入口命令，即go编译后的可执行文件
 ENTRYPOINT ["../bin/red_envelope"]
 
-#CMD ["../bin/red_envelope"]
+#CMD ["go","run","app.go"]
