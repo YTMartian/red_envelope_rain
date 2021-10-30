@@ -1,7 +1,7 @@
 package main
 
 import (
-	"./routers"
+	"red_envelope/src/routers"
 	"github.com/gin-gonic/gin"
 )
 

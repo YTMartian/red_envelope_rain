@@ -3,7 +3,7 @@ package routers
 import (
 	"net/http"
 
-	"../entity"
+	"red_envelope/src/entity"
 	"github.com/gin-gonic/gin"
 )
 
