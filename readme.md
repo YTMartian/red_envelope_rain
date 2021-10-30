@@ -1,9 +1,8 @@
-# red_envelope_rain
-字节后端训练营-红包雨项目
+# 字节后端训练营-红包雨项目
 
 ### 功能实现
 
-* [ ] 容器部署（docker）
+* [ ] 流水线部署（火山引擎，github，docker）
 * [ ] 反爬机制 
 * [ ] 压力测试（webbench）
 * [ ] 缓存（redis） 
