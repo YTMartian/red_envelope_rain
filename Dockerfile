@@ -26,6 +26,6 @@ EXPOSE 8080
 
 
 # 镜像默认入口命令，即go编译后的可执行文件
-#ENTRYPOINT ["../bin/red_envelope"]
+ENTRYPOINT ["../bin/server"]
 
-CMD ../bin/server
+#CMD ../bin/server
