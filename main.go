@@ -1,17 +1,18 @@
 package main
 
 import (
-	"red_envelope/src/routers"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"red_envelope/src/routers"
 )
 
 func main() {
-	//创建一个默认的路由引擎
 	r := gin.Default()
 
-	//加载路由
-	routers.RoutersInit(r)
+	routers.ApiRoutersInit(r)
 
-	//启动路由
-	r.Run()
+	err := r.Run(":8080")
+	if err != nil {
+		fmt.Println("run error.")
+	}
 }

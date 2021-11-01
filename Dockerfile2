@@ -1,3 +1,5 @@
+#用于最开始的本地验证的dockerfile
+
 FROM golang
 
 # 改变工作目录，即执行go命令的目录
