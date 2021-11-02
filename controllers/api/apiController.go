@@ -10,6 +10,7 @@ type ApiController struct{}
 
 func (con ApiController) Snatch(c *gin.Context) {
 	c.String(http.StatusOK, "fuck")
+
 }
 
 func (con ApiController) Open(c *gin.Context) {

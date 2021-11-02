@@ -10,8 +10,8 @@ type ApiMiddleware struct{}
 
 //模拟判断用户是否登陆的中间件
 func (con ApiMiddleware) ApiMiddleware(c *gin.Context) {
-	logined := false
-	if logined {
+	login := true
+	if login {
 		c.Next() //继续执行后面的函数
 	} else {
 		c.JSON(http.StatusOK, gin.H{

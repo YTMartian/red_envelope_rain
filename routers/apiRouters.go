@@ -2,8 +2,8 @@ package routers
 
 import (
 	"github.com/gin-gonic/gin"
-	"red_envelope/src/controllers/api"
-	"red_envelope/src/middlewares"
+	"red_envelope/controllers/api"
+	"red_envelope/middlewares"
 )
 
 //首字母大写表示公有权限

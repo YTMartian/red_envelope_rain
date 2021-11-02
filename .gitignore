@@ -1,4 +1,7 @@
 .idea
 bin
 imgs
-main.exe
+*.exe
+pdf
+go.mod
+go.sum
