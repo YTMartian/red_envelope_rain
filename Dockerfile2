@@ -20,14 +20,14 @@ RUN go mod init
 RUN go mod tidy
 
 #进入src编译
-WORKDIR $GOPATH/src/red_envelope/src
-RUN go build -i -o ../bin/server
+WORKDIR $GOPATH/src/red_envelope
+RUN go build main.go
 
 # 指定镜像内部服务监听的端口
 EXPOSE 8080
 
 
 # 镜像默认入口命令，即go编译后的可执行文件
-ENTRYPOINT ["../bin/server"]
+ENTRYPOINT ["./main"]
 
-#CMD ../bin/server
+#CMD ./main

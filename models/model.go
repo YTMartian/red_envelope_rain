@@ -9,11 +9,20 @@ type Envelope struct {
 	EnvelopeId int64 `json:"envelope_id"` // 红包id
 	Uid        int64 `json:"uid"`         //拥有者
 	Value      int32 `json:"value"`       //红包金额（分）
-	MaxCount   int32 `json:"max_count"`   // 最多抢几次
-	CurMax     int32 `json:"cur_count"`   // 当前为第几次抢
 	Opened     bool  `json:"opened"`      //是否打开
-	SnatchTime int32 `json:"snatch_time"` //抢到时间
-	OpenedTime int32 `json:"opened_time"` //打开时间
+	SnatchTime int64 `json:"snatch_time"` //抢到时间
+	OpenedTime int64 `json:"opened_time"` //打开时间
+}
+
+//指定表名
+func (Envelope) TableName() string {
+	return "envelope"
+}
+
+type User struct {
+	Uid      int64 `json:"uid"`
+	MaxCount int32 `json:"max_count"` // 最多抢几次
+	CurCount   int32 `json:"cur_count"` // 当前为第几次抢
 }
 
 //type Response struct {
@@ -21,3 +30,12 @@ type Envelope struct {
 //	Msg  string `json:"msg"`  //信息
 //	Data gin.H  `json:"data"` //数据内容
 //}
+
+type Wallet struct {
+	Uid   int64 `json:"uid"`
+	Value int32 `json:"value"`
+}
+
+func (Wallet) TableName() string {
+	return "wallet"
+}

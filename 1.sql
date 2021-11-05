@@ -22,17 +22,27 @@ DROP TABLE IF EXISTS `envelope`;
 
 CREATE TABLE `envelope` (
   `envelope_id` bigint(20) NOT NULL COMMENT '红包id',
-  `uid` bigint(20) NOT NULL,
-  `value` int(11) NOT NULL,
-  `max_count` int(11) NOT NULL,
-  `cur_count` int(11) NOT NULL,
-  `opened` tinyint(1) NOT NULL DEFAULT '0',
-  `snatch_time` int(11) NOT NULL,
-  `opened_time` int(11) DEFAULT NULL,
+  `uid` bigint(20) NOT NULL COMMENT '拥有者',
+  `value` int(11) NOT NULL COMMENT '红包金额（分）',
+  `opened` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否打开',
+  `snatch_time` bigint(20) NOT NULL COMMENT '抢到时间',
+  `opened_time` bigint(20) DEFAULT NULL COMMENT '打开时间',
   PRIMARY KEY (`envelope_id`,`uid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*Data for the table `envelope` */
+
+/*Table structure for table `wallet` */
+
+DROP TABLE IF EXISTS `wallet`;
+
+CREATE TABLE `wallet` (
+  `uid` bigint(20) NOT NULL,
+  `money` int(11) DEFAULT '0',
+  PRIMARY KEY (`uid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+/*Data for the table `wallet` */
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;

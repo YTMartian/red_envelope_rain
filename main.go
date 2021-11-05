@@ -3,11 +3,15 @@ package main
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"math/rand"
 	"red_envelope/routers"
 	"red_envelope/utils"
+	"time"
 )
 
 func main() {
+	rand.Seed(time.Now().Unix())
+
 	var err error
 	err = utils.Init()
 	if err != nil {
