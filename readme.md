@@ -9,6 +9,7 @@
 * [x] 雪花算法生成分布式id
 * [x] 随机红包金额生成
 * [x] 缓存红包队列
+* [ ] 性能优化（sql explain、profiler、火焰图）
 
 ### 环境配置
 
@@ -16,6 +17,8 @@
 
 放到$GOPATH/src/red_envelope下
 
+- 升级npm
+    - npm -g install npm@6.14.10
 - 安装vue
     - sudo npm install -g vue
     - sudo npm install -g @vue/cli

@@ -39,6 +39,11 @@ var remainMoney int64 = configure.TotalMoney //剩余的钱
 func GetRandomMoney() int64 {
 	if remainSize == 1 {
 		remainSize--
+		if remainMoney > configure.MaxMoney {
+			remainMoney -= configure.MaxMoney
+			return configure.MaxMoney
+		}
+		remainMoney = 0
 		return remainMoney
 	}
 	r := rand.Float64()

@@ -6,7 +6,7 @@ package configure
 const (
 	MaxSnatch     = 10        //最多抢红包数
 	TotalMoney    = 100000000 //红包总金额
-	TotalAmount   = 100  //红包总个数
+	TotalAmount   = 100       //红包总个数
 	MinMoney      = 1
 	MaxMoney      = 100
 	MysqlAddr     = "localhost"
@@ -18,4 +18,5 @@ const (
 	RedisAdder    = "localhost"
 	RedisPort     = 6379
 	RedisPass     = ""
+	JSMAXNUM      = 1 << 53 //js整数的取值范围在[-2^53,2^53]
 )

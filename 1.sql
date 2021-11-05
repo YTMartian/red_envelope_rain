@@ -27,7 +27,7 @@ CREATE TABLE `envelope` (
   `opened` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否打开',
   `snatch_time` bigint(20) NOT NULL COMMENT '抢到时间',
   `opened_time` bigint(20) DEFAULT NULL COMMENT '打开时间',
-  PRIMARY KEY (`envelope_id`,`uid`)
+  PRIMARY KEY (`envelope_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*Data for the table `envelope` */

@@ -10,6 +10,7 @@ import (
 	"gorm.io/gorm"
 	"red_envelope/configure"
 	"red_envelope/models"
+	"strconv"
 )
 
 //全局变量
@@ -57,12 +58,33 @@ func Init() (err error) {
 	for _, envelope := range envelopeList {
 		remainSize -= 1
 		remainMoney -= int64(envelope.Value)
+		//直接缓存用户表
+		user := models.User{}
+		key := strconv.FormatInt(envelope.Uid, 10) + "user" //我是直接缓存用户表的，就没有操作数据库了
+		userJson, err := RDB.Get(CTX, key).Result()
+		if err != redis.Nil {
+			err = json.Unmarshal([]byte(userJson), &user)
+			if err != nil {
+				return err
+			}
+			user.CurCount += 1
+		} else {
+			user.Uid = envelope.Uid
+			user.MaxCount = configure.MaxSnatch
+			user.CurCount = 1
+		}
+		userJsonByte, _ := json.Marshal(user)
+		if err := RDB.Set(CTX, key, userJsonByte, 0).Err(); err != nil { //更新redis
+			return err
+		}
+		//缓存已经打开的红包
+
 	}
 	//然后生成全部红包放入redis中
 	for remainSize > 0 {
 		var envelopeJson []byte
 		envelope := models.Envelope{
-			EnvelopeId: int64(SnowflakeNode.Generate()),
+			EnvelopeId: int64(SnowflakeNode.Generate() % configure.JSMAXNUM), //js整数的取值范围在[-2^53,2^53]
 			Uid:        0,
 			Value:      int32(GetRandomMoney()),
 			Opened:     false,
