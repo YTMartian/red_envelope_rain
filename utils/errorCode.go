@@ -16,6 +16,7 @@ const (
 	CODE_OUT_OF_SNATCH_COUNT_ERROR = 11 //抢红包次数用尽
 	CODE_ENVELOPE_NOT_EXIST_ERROR  = 12
 	CODE_UPDATE_DB_ERROR           = 13
+	CODE_OTHER_ERROR               = 14
 
 	MSG_SUCCESS                   = "success"
 	MSG_NOT_LOGIN_ERROR           = "not login"
@@ -31,4 +32,5 @@ const (
 	MSG_OUT_OF_SNATCH_COUNT_ERROR = "out of snatch count"
 	MSG_ENVELOPE_NOT_EXIST_ERROR  = "envelope not exist"
 	MSG_UPDATE_DB_ERROR           = "update db error"
+	MSG_OTHER_ERROR               = "other errors"
 )

@@ -32,7 +32,7 @@ func (con ApiController) SnatchHandler(c *gin.Context) {
 			"code": utils.CODE_BINDJSON_ERROR,
 			"msg":  utils.MSG_BINDJSON_ERROR,
 		})
-		return
+		panic(err)
 	}
 
 	//先检查抢红包次数是否用尽
@@ -46,7 +46,7 @@ func (con ApiController) SnatchHandler(c *gin.Context) {
 				"code": utils.CODE_UNMARSHAL_ERROR,
 				"msg":  utils.MSG_UNMARSHAL_ERROR,
 			})
-			return
+			panic(err)
 		}
 	} else {
 		user.Uid = request.Uid
@@ -67,7 +67,7 @@ func (con ApiController) SnatchHandler(c *gin.Context) {
 			"code": utils.CODE_REDIS_SET_ERROR,
 			"msg":  utils.MSG_REDIS_SET_ERROR,
 		})
-		return
+		panic(err)
 	}
 
 	//抢红包
@@ -86,22 +86,22 @@ func (con ApiController) SnatchHandler(c *gin.Context) {
 			"code": utils.CODE_UNMARSHAL_ERROR,
 			"msg":  utils.MSG_UNMARSHAL_ERROR,
 		})
-		return
+		panic(err)
 	}
 	newEnvelope.Uid = request.Uid
 	newEnvelope.SnatchTime = utils.GetCurrentTime()
 
 	//先更新数据库再更新redis
 	envelopeList := []models.Envelope{}
-	utils.DB.Where("uid=?", request.Uid).Find(&envelopeList)
+	envelopeList = models.GetEnvelopesByUid(utils.DB, request.Uid)
 	key = strconv.FormatInt(request.Uid, 10) + "wallet" //红包列表key为uid+"wallet"
 	envelopeList = append(envelopeList, newEnvelope)
-	if err := utils.DB.Create(&newEnvelope).Error; err != nil { //更新数据库
+	if err := models.InsertEnvelope(utils.DB, &newEnvelope); err != nil { //更新数据库
 		c.JSON(http.StatusOK, gin.H{
 			"code": utils.CODE_INSERT_DB_ERROR,
 			"msg":  utils.MSG_INSERT_DB_ERROR,
 		})
-		return
+		panic(err)
 	}
 	//转为json格式然后更新redis
 	jsonEnvelopeListByte, err := json.Marshal(envelopeList)
@@ -110,15 +110,15 @@ func (con ApiController) SnatchHandler(c *gin.Context) {
 			"code": utils.CODE_MARSHAL_ERROR,
 			"msg":  utils.MSG_MARSHAL_ERROR,
 		})
-		return
+		panic(err)
 	}
 	jsonEnvelopeList := string(jsonEnvelopeListByte)
-	if err := utils.RDB.Set(utils.CTX, key, jsonEnvelopeList, 0).Err(); err != nil { //更新redis
+	if err := utils.RDB.Set(utils.CTX, key, jsonEnvelopeList, 60).Err(); err != nil { //更新redis
 		c.JSON(http.StatusOK, gin.H{
 			"code": utils.CODE_REDIS_SET_ERROR,
 			"msg":  utils.MSG_REDIS_SET_ERROR,
 		})
-		return
+		panic(err)
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"code": utils.CODE_SUCCESS,
@@ -140,7 +140,7 @@ func (con ApiController) OpenHandler(c *gin.Context) {
 			"code": utils.CODE_BINDJSON_ERROR,
 			"msg":  utils.MSG_BINDJSON_ERROR,
 		})
-		return
+		panic(err)
 	}
 	//从redis中获取该用户的所有红包
 	envelopeList := getUserEnvelopeList(request.Uid, c)
@@ -174,24 +174,23 @@ func (con ApiController) OpenHandler(c *gin.Context) {
 				"code": utils.CODE_MARSHAL_ERROR,
 				"msg":  utils.MSG_MARSHAL_ERROR,
 			})
-			return
+			panic(err)
 		}
-		key := strconv.FormatInt(request.Uid, 10) + "wallet"                                     //key为uid+"wallet"
-		if err := utils.RDB.Set(utils.CTX, key, string(jsonEnvelopeList), 0).Err(); err != nil { //更新redis
+		key := strconv.FormatInt(request.Uid, 10) + "wallet"                                      //key为uid+"wallet"
+		if err := utils.RDB.Set(utils.CTX, key, string(jsonEnvelopeList), 60).Err(); err != nil { //更新redis
 			c.JSON(http.StatusOK, gin.H{
 				"code": utils.CODE_REDIS_SET_ERROR,
 				"msg":  utils.MSG_REDIS_SET_ERROR,
 			})
-			return
+			panic(err)
 		}
-		if err := utils.DB.Model(&models.Envelope{}).Where("envelope_id=?", request.EnvelopeId).Updates(
-			map[string]interface{}{"opened": true, "opened_time": envelopeList[index].OpenedTime},
-		).Error; err != nil { //更新数据库
+
+		if err := models.UpdateEnvelopeByEnvelopeId(utils.DB, request.EnvelopeId, &map[string]interface{}{"opened": true, "opened_time": envelopeList[index].OpenedTime}); err != nil { //更新数据库
 			c.JSON(http.StatusOK, gin.H{
 				"code": utils.CODE_UPDATE_DB_ERROR,
 				"msg":  utils.MSG_UPDATE_DB_ERROR,
 			})
-			return
+			panic(err)
 		}
 	}
 
@@ -213,7 +212,7 @@ func (con ApiController) GetWalletListHandler(c *gin.Context) {
 			"code": utils.CODE_BINDJSON_ERROR,
 			"msg":  utils.MSG_BINDJSON_ERROR,
 		})
-		return
+		panic(err)
 	}
 	envelopeList := getUserEnvelopeList(request.Uid, c)
 	if envelopeList == nil {
@@ -262,11 +261,12 @@ func getUserEnvelopeList(uid int64, c *gin.Context) []models.Envelope {
 				"code": utils.CODE_UNMARSHAL_ERROR,
 				"msg":  utils.MSG_UNMARSHAL_ERROR,
 			})
+			panic(err)
 			return nil
 		}
 	} else {
 		//redis查询不到再从数据库中查询，并更新缓存
-		utils.DB.Where("uid=?", uid).Find(&envelopeList)
+		envelopeList = models.GetEnvelopesByUid(utils.DB, uid)
 		//转为json格式然后更新redis
 		jsonEnvelopeList, err := json.Marshal(envelopeList)
 		if err != nil {
@@ -274,9 +274,10 @@ func getUserEnvelopeList(uid int64, c *gin.Context) []models.Envelope {
 				"code": utils.CODE_MARSHAL_ERROR,
 				"msg":  utils.MSG_MARSHAL_ERROR,
 			})
+			panic(err)
 			return nil
 		}
-		utils.RDB.Set(utils.CTX, key, string(jsonEnvelopeList), 0) //更新redis
+		utils.RDB.Set(utils.CTX, key, string(jsonEnvelopeList), 60) //更新redis
 	}
 	return envelopeList
 }

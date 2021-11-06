@@ -81,7 +81,7 @@ func Init() (err error) {
 
 	}
 	//然后生成全部红包放入redis中
-	for remainSize > 0 {
+	for remainSize > 0 && remainMoney > 0{
 		var envelopeJson []byte
 		envelope := models.Envelope{
 			EnvelopeId: int64(SnowflakeNode.Generate() % configure.JSMAXNUM), //js整数的取值范围在[-2^53,2^53]

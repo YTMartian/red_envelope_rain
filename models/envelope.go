@@ -1,5 +1,9 @@
 package models
 
+import (
+	"gorm.io/gorm"
+)
+
 //首字母大写表示公有权限
 //type User struct {
 //	Uid int32 `json:"uid"` //转成json格式时，Uid会变成uid
@@ -14,28 +18,21 @@ type Envelope struct {
 	OpenedTime int64 `json:"opened_time"` //打开时间
 }
 
-//指定表名
+// TableName 指定表名
 func (Envelope) TableName() string {
 	return "envelope"
 }
 
-type User struct {
-	Uid      int64 `json:"uid"`
-	MaxCount int32 `json:"max_count"` // 最多抢几次
-	CurCount   int32 `json:"cur_count"` // 当前为第几次抢
+func GetEnvelopesByUid(DB *gorm.DB, uid int64) []Envelope {
+	envelopeList := []Envelope{}
+	DB.Where("uid=?", uid).Find(&envelopeList)
+	return envelopeList
 }
 
-//type Response struct {
-//	Code int32  `json:"code"` //状态码
-//	Msg  string `json:"msg"`  //信息
-//	Data gin.H  `json:"data"` //数据内容
-//}
-
-type Wallet struct {
-	Uid   int64 `json:"uid"`
-	Value int32 `json:"value"`
+func InsertEnvelope(DB *gorm.DB, newEnvelope *Envelope) error {
+	return DB.Create(newEnvelope).Error
 }
 
-func (Wallet) TableName() string {
-	return "wallet"
+func UpdateEnvelopeByEnvelopeId(DB *gorm.DB, EnvelopeId int64, data *map[string]interface{}) error {
+	return DB.Model(&Envelope{}).Where("envelope_id=?", EnvelopeId).Updates(data).Error
 }

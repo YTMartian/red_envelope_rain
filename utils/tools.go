@@ -43,8 +43,9 @@ func GetRandomMoney() int64 {
 			remainMoney -= configure.MaxMoney
 			return configure.MaxMoney
 		}
+		res := remainMoney
 		remainMoney = 0
-		return remainMoney
+		return res
 	}
 	r := rand.Float64()
 	min := float64(configure.MinMoney) * 0.01 //分转换为元
@@ -56,6 +57,9 @@ func GetRandomMoney() int64 {
 	money = math.Floor(money*100) / 100
 	remainSize--
 	ans := int64(money * 100)
+	if remainMoney < ans {
+		ans = remainMoney
+	}
 	remainMoney -= ans
 	return ans
 }
