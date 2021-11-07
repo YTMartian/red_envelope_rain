@@ -4,17 +4,18 @@
 
 * [x] 流水线部署（火山引擎, 推送k8s集群）
 * [ ] 反爬机制 
-* [ ] 压力测试（ab, webbench）
+* [x] 压力测试（ab, webbench，python多线程并发测试）
 * [x] 缓存（redis） 
 * [x] 雪花算法生成分布式id
 * [x] 随机红包金额生成
 * [x] 缓存红包队列，动态红包添加
 * [x] 全局异常捕获中间件
 * [ ] 性能优化（sql explain、profiler、火焰图）
-* [ ] 消息队列削峰（RocketMQ）
-* [x] 滚动日志记录（）
+* [ ] 消息队列数据库存储削峰（RocketMQ）
+* [x] 滚动日志记录（logrus+lumberjack）
 * [ ] 熔断机制（hystrix）
 * [ ] 优雅重启
+* [x] 流量控制（Sentinel匀速排队）
 
 ### 环境配置
 
@@ -69,6 +70,7 @@
 - 压力测试工具安装
     - ab:sudo apt update && sudo apt install -y apache2-utils
     - webbench:cd ./test && ./webbench.out
+    - python多线程并发测试: cd ./text && python test.py
 
 #### 部署
 

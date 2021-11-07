@@ -33,6 +33,6 @@ func InsertEnvelope(DB *gorm.DB, newEnvelope *Envelope) error {
 	return DB.Create(newEnvelope).Error
 }
 
-func UpdateEnvelopeByEnvelopeId(DB *gorm.DB, EnvelopeId int64, data *map[string]interface{}) error {
-	return DB.Model(&Envelope{}).Where("envelope_id=?", EnvelopeId).Updates(data).Error
+func UpdateEnvelopeByEnvelopeId(DB *gorm.DB, envelopeId int64, data *map[string]interface{}) error {
+	return DB.Model(&Envelope{}).Where("envelope_id=?", envelopeId).Updates(data).Error
 }

@@ -19,6 +19,7 @@ var DB *gorm.DB = nil
 var RDB *redis.Client = nil
 var CTX = context.Background() //一个空的上下文
 
+
 func Init() (err error) {
 	//初始化雪花算法
 	SnowflakeNode, err = snowflake.NewNode(configure.MachineId)
@@ -27,11 +28,10 @@ func Init() (err error) {
 	}
 	//初始化数据库连接
 	var s string
-	s = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+	s = fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		configure.MysqlUser,
 		configure.MysqlPass,
 		configure.MysqlAddr,
-		configure.MysqlPort,
 		configure.MysqlDatabase,
 	)
 	DB, err = gorm.Open(mysql.Open(s), &gorm.Config{})
@@ -39,9 +39,8 @@ func Init() (err error) {
 		return err
 	}
 	//初始化redis连接
-	s = fmt.Sprintf("%s:%d", configure.RedisAdder, configure.RedisPort)
 	RDB = redis.NewClient(&redis.Options{
-		Addr:     s,
+		Addr:     configure.RedisAddr,
 		Password: configure.RedisPass,
 		DB:       0, // use default DB
 	})
