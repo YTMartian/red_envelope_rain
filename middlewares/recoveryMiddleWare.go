@@ -2,7 +2,6 @@ package middlewares
 
 import (
 	"github.com/gin-gonic/gin"
-	"red_envelope/configure"
 	"red_envelope/utils"
 )
 
@@ -15,9 +14,7 @@ func RecoveryMiddleWare() gin.HandlerFunc {
 				//	"code": utils.CODE_OTHER_ERROR,
 				//	"msg":  utils.MSG_OTHER_ERROR,
 				//})
-				if configure.GIN_MODE == "debug" {
-					utils.MyLog.Error(err)
-				}
+				utils.MyLog.Error(err)
 				return
 			}
 		}()

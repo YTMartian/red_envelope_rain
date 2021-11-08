@@ -176,7 +176,7 @@ func (con ApiController) OpenHandler(c *gin.Context) {
 			})
 			panic(err)
 		}
-		key := strconv.FormatInt(request.Uid, 10) + "wallet"                                      //key为uid+"wallet"
+		key := strconv.FormatInt(request.Uid, 10) + "wallet"                                     //key为uid+"wallet"
 		if err := utils.RDB.Set(utils.CTX, key, string(jsonEnvelopeList), 0).Err(); err != nil { //更新redis
 			c.JSON(http.StatusOK, gin.H{
 				"code": utils.CODE_REDIS_SET_ERROR,
@@ -247,6 +247,19 @@ func (con ApiController) GetWalletListHandler(c *gin.Context) {
 		},
 	})
 
+	//钱包信息发往消息队列处理
+	wallet := models.Wallet{
+		Uid:   request.Uid,
+		Money: dataAmount,
+	}
+	walletJson, err := json.Marshal(wallet)
+	if err == nil {
+		rmqMsg := utils.RocketMqMessage{
+			Topic:        "wallet",
+			MessageBytes: walletJson,
+		}
+		utils.SendToRMQ(rmqMsg)
+	}
 }
 
 func getUserEnvelopeList(uid int64, c *gin.Context) []models.Envelope {

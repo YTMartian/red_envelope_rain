@@ -10,8 +10,9 @@ var (
 	logFile = "gin.log"
 )
 var MyLog = logrus.New()
-// 日志初始化
-func init()  {
+
+// InitLogger 日志初始化
+func InitLogger()  {
 	// 打开文件
 	logFileName := path.Join(logPath, logFile)
 	// 使用滚动压缩方式记录日志

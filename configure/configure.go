@@ -17,10 +17,8 @@ const (
 	RedisAddr          = "127.0.0.1:6379"
 	RedisPass          = ""
 	JSMAXNUM           = 1 << 53 //js整数的取值范围在[-2^53,2^53]
-	ReadTimeout        = 60
-	WriteTimeout       = 60
-	LISTEN_PORT        = ":8080"
 	GIN_MODE           = "debug" //debug or release
-	RMQ_NAMESEVER_ADDR = "127.0.0.1:9876"
-	RMQ_BROKER_ADDR    = "127.0.0.1:10911"
+	RmqNameseverAddr = "127.0.0.1:9876"
+	RmqBrokerAddr = "127.0.0.1:10911"
+	UseProfiler   = true
 )

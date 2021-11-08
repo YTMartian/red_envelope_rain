@@ -2,6 +2,7 @@ package utils
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/apache/rocketmq-client-go/v2"
 	"github.com/apache/rocketmq-client-go/v2/admin"
@@ -10,19 +11,20 @@ import (
 	"github.com/apache/rocketmq-client-go/v2/producer"
 	"os"
 	"red_envelope/configure"
+	"red_envelope/models"
 )
 
 var MyProducer rocketmq.Producer
 var MyConsumer rocketmq.PushConsumer
 
-//init函数会自动执行
-func init() {
-	//初始化异步生产者
+// InitRMQ (如果是init函数就会自动执行)
+func InitRMQ() {
+	//初始化生产者
 	var err error
 	MyProducer, err = rocketmq.NewProducer(
-		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{configure.RMQ_NAMESEVER_ADDR})),
+		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{configure.RmqNameseverAddr})),
 		producer.WithRetry(2),
-		producer.WithQueueSelector(producer.NewManualQueueSelector()))
+	)
 	if err != nil {
 		if configure.GIN_MODE == "debug" {
 			fmt.Printf("create producer error: %s\n", err.Error())
@@ -40,13 +42,13 @@ func init() {
 	}
 
 	//初始化topic
-	rmqWalletTopic := "rmq_wallet"
-	testAdmin, _ := admin.NewAdmin(admin.WithResolver(primitive.NewPassthroughResolver([]string{configure.RMQ_NAMESEVER_ADDR})))
+	rmqWalletTopic := "wallet"
+	myAdmin, _ := admin.NewAdmin(admin.WithResolver(primitive.NewPassthroughResolver([]string{configure.RmqNameseverAddr})))
 
-	err = testAdmin.CreateTopic(
+	err = myAdmin.CreateTopic(
 		context.Background(),
 		admin.WithTopicCreate(rmqWalletTopic),
-		admin.WithBrokerAddrCreate(configure.RMQ_BROKER_ADDR),
+		admin.WithBrokerAddrCreate(configure.RmqBrokerAddr),
 	)
 	if err != nil {
 		if configure.GIN_MODE == "debug" {
@@ -58,15 +60,10 @@ func init() {
 
 	//初始化消费者
 	MyConsumer, _ := rocketmq.NewPushConsumer(
-		consumer.WithNsResolver(primitive.NewPassthroughResolver([]string{configure.RMQ_NAMESEVER_ADDR})),
+		consumer.WithGroupName("myGroup"),
+		consumer.WithNsResolver(primitive.NewPassthroughResolver([]string{configure.RmqNameseverAddr})),
 	)
-	err = MyConsumer.Subscribe(rmqWalletTopic, consumer.MessageSelector{}, func(ctx context.Context,
-		msgs ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
-		for i := range msgs {
-			fmt.Printf("subscribe callback: %v \n", msgs[i])
-		}
-		return consumer.ConsumeSuccess, nil
-	})
+	err = MyConsumer.Subscribe(rmqWalletTopic, consumer.MessageSelector{}, callbackWallet)
 	err = MyConsumer.Start()
 	if err != nil {
 		if configure.GIN_MODE == "debug" {
@@ -77,23 +74,25 @@ func init() {
 	}
 }
 
-type rocketMqMessage struct {
-	messageId    int64
-	messageBytes string
-	tag          string
-	topic        string
+type RocketMqMessage struct {
+	MessageId    int64
+	MessageBytes []byte
+	Tag          string
+	Topic        string
 }
 
-func SendToRMQ(msg rocketMqMessage) {
-	err := MyProducer.SendAsync(context.Background(),
-		func(ctx context.Context, result *primitive.SendResult, e error) {
-			if e != nil {
-				if configure.GIN_MODE == "debug" {
-					fmt.Printf("receive message error: %s\n", e)
-				}
-				MyLog.Error("receive message error: ", e)
-			}
-		}, primitive.NewMessage(msg.topic, []byte(msg.messageBytes)))
+func SendToRMQ(msg RocketMqMessage) {
+	ms := primitive.NewMessage(msg.Topic, msg.MessageBytes)
+	_, err := MyProducer.SendSync(context.Background(), ms)
+	//err := MyProducer.SendAsync(context.Background(),
+	//	func(ctx context.Context, result *primitive.SendResult, e error) {
+	//		if e != nil {
+	//			if configure.GIN_MODE == "debug" {
+	//				fmt.Printf("receive message error: %s\n", e)
+	//			}
+	//			MyLog.Error("receive message error: ", e)
+	//		}
+	//	}, primitive.NewMessage(msg.Topic, msg.MessageBytes))
 	if err != nil {
 		if configure.GIN_MODE == "debug" {
 			fmt.Printf("send message error: %s\n", err)
@@ -102,6 +101,20 @@ func SendToRMQ(msg rocketMqMessage) {
 	}
 }
 
-func RecvFromRMQ() []byte {
-	return nil
+func callbackWallet(ctx context.Context, msgs ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
+	for i := range msgs {
+		wallet := models.Wallet{}
+		err := json.Unmarshal(msgs[i].Body, &wallet)
+		if err != nil {
+			MyLog.Error("callbackWallet error: ", err)
+			continue
+		}
+		err = models.InsertWallet(DB, &wallet)
+		if err != nil { //可能存在该记录，则再试试更新
+			if err = models.UpdateWalletByUid(DB, wallet.Uid, &map[string]interface{}{"money": wallet.Money}); err != nil {
+				MyLog.Error("update wallet err:", err)
+			}
+		}
+	}
+	return consumer.ConsumeSuccess, nil
 }

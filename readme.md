@@ -3,7 +3,7 @@
 ### 功能实现
 
 * [x] 流水线部署（火山引擎, 推送k8s集群）
-* [ ] 反爬机制 
+* [x] 反爬机制（反爬中间件）
 * [x] 压力测试（ab, webbench，python多线程并发测试）
 * [x] 缓存（redis） 
 * [x] 雪花算法生成分布式id
@@ -11,11 +11,12 @@
 * [x] 缓存红包队列，动态红包添加
 * [x] 全局异常捕获中间件
 * [ ] 性能优化（sql explain、profiler、火焰图）
-* [ ] 消息队列数据库存储削峰（RocketMQ）
+* [x] 消息队列数据库存储削峰（RocketMQ）
 * [x] 滚动日志记录（logrus+lumberjack）
 * [ ] 熔断机制（hystrix）
 * [ ] 优雅重启
 * [x] 流量控制（Sentinel匀速排队）
+* [x] 解决跨域问题（跨域中间件）
 
 ### 环境配置
 
@@ -71,6 +72,11 @@
     - ab:sudo apt update && sudo apt install -y apache2-utils
     - webbench:cd ./test && ./webbench.out
     - python多线程并发测试: cd ./text && python test.py
+- 生成profiler分析结果火焰图
+    - 设置configure中的UseProfiler=true
+    - 下载go-torch：go get -u github.com/google/pprof
+    - 下载FlameGraph：mkdir -p $GOPATH/src/github.com/uber/go-torch && cd $GOPATH/src/github.com/uber/go-torch && git clone https://github.com/brendangregg/FlameGraph.git
+    - 生成火焰图：go-torch -u http://localhost:6060
 
 #### 部署
 

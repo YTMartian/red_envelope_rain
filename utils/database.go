@@ -19,7 +19,6 @@ var DB *gorm.DB = nil
 var RDB *redis.Client = nil
 var CTX = context.Background() //一个空的上下文
 
-
 func Init() (err error) {
 	//初始化雪花算法
 	SnowflakeNode, err = snowflake.NewNode(configure.MachineId)
@@ -50,7 +49,13 @@ func Init() (err error) {
 	}
 	RDB.FlushDB(CTX)
 
-	//初始化生成全部红包放入redis中
+	err = InitRedEnvelope()
+
+	return err
+}
+
+// InitRedEnvelope 初始化生成全部红包放入redis中
+func InitRedEnvelope() (err error) {
 	//首先减去数据库中已有的红包
 	envelopeList := []models.Envelope{}
 	DB.Find(&envelopeList)
@@ -76,11 +81,10 @@ func Init() (err error) {
 		if err := RDB.Set(CTX, key, userJsonByte, 0).Err(); err != nil { //更新redis
 			return err
 		}
-		//缓存已经打开的红包
 
 	}
 	//然后生成全部红包放入redis中
-	for remainSize > 0 && remainMoney > 0{
+	for remainSize > 0 && remainMoney > 0 {
 		var envelopeJson []byte
 		envelope := models.Envelope{
 			EnvelopeId: int64(SnowflakeNode.Generate() % configure.JSMAXNUM), //js整数的取值范围在[-2^53,2^53]

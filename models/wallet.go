@@ -4,7 +4,7 @@ import "gorm.io/gorm"
 
 type Wallet struct {
 	Uid   int64 `json:"uid"`
-	Value int32 `json:"value"`
+	Money int32 `json:"money"`
 }
 
 func (Wallet) TableName() string {
@@ -12,7 +12,7 @@ func (Wallet) TableName() string {
 }
 
 
-func InsertWallet(DB *gorm.DB, newWallet *Envelope) error {
+func InsertWallet(DB *gorm.DB, newWallet *Wallet) error {
 	return DB.Create(newWallet).Error
 }
 
