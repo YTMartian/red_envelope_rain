@@ -10,7 +10,7 @@
 * [x] 随机红包金额生成
 * [x] 缓存红包队列，动态红包添加
 * [x] 全局异常捕获中间件
-* [ ] 性能优化（sql explain、profiler、火焰图）
+* [x] 性能优化（sql explain、profiler、火焰图）
 * [x] 消息队列数据库存储削峰（RocketMQ）
 * [x] 滚动日志记录（logrus+lumberjack）
 * [ ] 熔断机制（hystrix）
